@@ -70,11 +70,19 @@ struct QuantileExact
         if (!array.empty())
         {
             size_t n = level < 1
-                ? level * array.size()
-                : (array.size() - 1);
+                       ? level * array.size()
+                       : (array.size() - 1);
 
             std::nth_element(array.begin(), array.begin() + n, array.end());    /// NOTE You can think of the radix-select algorithm.
-            return array[n];
+
+            //TODO https://stackoverflow.com/questions/1719070/what-is-the-right-approach-when-using-stl-container-for-median-calculation
+            // some hacks
+            auto med = array[n];
+            if (!(array.size() & 1) && level == 0.5) {
+                auto max_it = std::max_element(array.begin(), array.begin()+n);
+                return (*max_it + med) / 2.0;
+            }
+            return med;
         }
 
         return std::numeric_limits<Value>::quiet_NaN();

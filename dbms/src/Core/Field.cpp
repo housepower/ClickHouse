@@ -142,7 +142,80 @@ namespace DB
 
 namespace DB
 {
-    inline void readBinary(Tuple & x_def, ReadBuffer & buf)
+    //TODO inline
+    void readBinary(Tuple & x_def, ReadBuffer & buf)
+    {
+        auto & x = x_def.toUnderType();
+        size_t size;
+        DB::readBinary(size, buf);
+
+        for (size_t index = 0; index < size; ++index)
+        {
+            UInt8 type;
+            DB::readBinary(type, buf);
+
+            switch (type)
+            {
+                case Field::Types::Null:
+                {
+                    x.push_back(DB::Field());
+                    break;
+                }
+                case Field::Types::UInt64:
+                {
+                    UInt64 value;
+                    DB::readVarUInt(value, buf);
+                    x.push_back(value);
+                    break;
+                }
+                case Field::Types::UInt128:
+                {
+                    UInt128 value;
+                    DB::readBinary(value, buf);
+                    x.push_back(value);
+                    break;
+                }
+                case Field::Types::Int64:
+                {
+                    Int64 value;
+                    DB::readVarInt(value, buf);
+                    x.push_back(value);
+                    break;
+                }
+                case Field::Types::Float64:
+                {
+                    Float64 value;
+                    DB::readFloatBinary(value, buf);
+                    x.push_back(value);
+                    break;
+                }
+                case Field::Types::String:
+                {
+                    std::string value;
+                    DB::readStringBinary(value, buf);
+                    x.push_back(value);
+                    break;
+                }
+                case Field::Types::Array:
+                {
+                    Array value;
+                    DB::readBinary(value, buf);
+                    x.push_back(value);
+                    break;
+                }
+                case Field::Types::Tuple:
+                {
+                    Tuple value;
+                    DB::readBinary(value, buf);
+                    x.push_back(value);
+                    break;
+                }
+            };
+        }
+    }
+
+    void readTuple(Tuple & x_def, ReadBuffer & buf)
+
     {
         auto & x = x_def.toUnderType();
         size_t size;

@@ -10,6 +10,7 @@ namespace DB
 namespace
 {
 
+template <bool repeated = false>
 AggregateFunctionPtr createAggregateFunctionWindowFunnel(const std::string & name, const DataTypes & arguments, const Array & params)
 {
     if (params.size() != 1)
@@ -21,14 +22,15 @@ AggregateFunctionPtr createAggregateFunctionWindowFunnel(const std::string & nam
     if (arguments.size() > AggregateFunctionWindowFunnelData::max_events + 1)
         throw Exception("Too many event arguments for aggregate function " + name, ErrorCodes::NUMBER_OF_ARGUMENTS_DOESNT_MATCH);
 
-    return std::make_shared<AggregateFunctionWindowFunnel>(arguments, params);
+    return std::make_shared<AggregateFunctionWindowFunnel<repeated>>(arguments, params);
 }
 
 }
 
 void registerAggregateFunctionWindowFunnel(AggregateFunctionFactory & factory)
 {
-    factory.registerFunction("windowFunnel", createAggregateFunctionWindowFunnel, AggregateFunctionFactory::CaseInsensitive);
+    factory.registerFunction("windowFunnel", createAggregateFunctionWindowFunnel<false>, AggregateFunctionFactory::CaseInsensitive);
+    factory.registerFunction("windowRepeatedFunnel", createAggregateFunctionWindowFunnel<true>, AggregateFunctionFactory::CaseInsensitive);
 }
 
 }

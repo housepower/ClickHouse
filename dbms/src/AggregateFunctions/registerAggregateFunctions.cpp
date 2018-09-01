@@ -15,6 +15,7 @@ void registerAggregateFunctionGroupArrayInsertAt(AggregateFunctionFactory &);
 void registerAggregateFunctionsQuantile(AggregateFunctionFactory &);
 void registerAggregateFunctionsSequenceMatch(AggregateFunctionFactory &);
 void registerAggregateFunctionWindowFunnel(AggregateFunctionFactory &);
+void registerAggregateFunctionXFunnel(AggregateFunctionFactory &);
 void registerAggregateFunctionsMinMaxAny(AggregateFunctionFactory &);
 void registerAggregateFunctionsStatisticsStable(AggregateFunctionFactory &);
 void registerAggregateFunctionsStatisticsSimple(AggregateFunctionFactory &);
@@ -49,6 +50,7 @@ void registerAggregateFunctions()
         registerAggregateFunctionsQuantile(factory);
         registerAggregateFunctionsSequenceMatch(factory);
         registerAggregateFunctionWindowFunnel(factory);
+        registerAggregateFunctionXFunnel(factory);
         registerAggregateFunctionsMinMaxAny(factory);
         registerAggregateFunctionsStatisticsStable(factory);
         registerAggregateFunctionsStatisticsSimple(factory);

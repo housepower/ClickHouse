@@ -640,6 +640,7 @@ void writeText(const Array & x, WriteBuffer & buf);
 inline void writeQuoted(const Array &, WriteBuffer &) { throw Exception("Cannot write Array quoted.", ErrorCodes::NOT_IMPLEMENTED); }
 
 void readBinary(Tuple & x, ReadBuffer & buf);
+void readTuple(Tuple & x, ReadBuffer & buf);
 
 inline void readText(Tuple &, ReadBuffer &) { throw Exception("Cannot read Tuple.", ErrorCodes::NOT_IMPLEMENTED); }
 inline void readQuoted(Tuple &, ReadBuffer &) { throw Exception("Cannot read Tuple.", ErrorCodes::NOT_IMPLEMENTED); }
