@@ -212,10 +212,8 @@ private:
         int tmp_idx;
 
         /// let's fuck the BT rules
-        /// 4，每一天取步骤数最大的路径，如果最大步骤数有多条
-        /// 4.1最大步骤数 等于 漏斗最大步骤，取最大步骤最靠 前 的
-        /// 4.2最大步骤数 小于 漏斗最大步骤，取最大步骤最靠 后 的
-        /// 4.3如果最大步骤时间也一样，取最开始时间靠后的
+        /// 最大目标一样的， 从右边开始，越靠近最大目标的
+        /// 类似多叉树， 没满足最后目标求最大深度最右节点序列， 满足最后目标后，只需要第一个
 
         for (UInt16 idx = 0; idx < data.events_list.size(); idx++)
         {
@@ -240,12 +238,22 @@ private:
             {
                 for (UInt16 day_idx = 0; day_idx < patterns.size(); ++day_idx)
                 {
-                    if (!res[day_idx].empty())
+                    if (!res[day_idx].empty() || day < first_day + day_idx)
                         continue;
 
+                    //tmp_idx 表示 该天 event_idx = 0 的时间最大值，如果这个值也不满足时间窗口，则我们可以取多叉树最右值
                     tmp_idx = patterns[day_idx].front().empty() ? -1 : patterns[day_idx].front().back().front();
                     if (tmp_idx != -1 && data.events_list[tmp_idx].timestamp + window < timestamp)
                     {
+                        for (size_t event = events_size - 1; event > 0; --event)
+                        {
+                            if (!patterns[day_idx][event - 1].empty())
+                            {
+                                res[day_idx] = patterns[day_idx][event - 1].back();
+                                count --;
+                                break;
+                            }
+                        }
                         continue;
                     }
 
@@ -283,17 +291,6 @@ private:
                     if (event_idx + 1 == events_size && res[day_idx].empty() && !patterns[day_idx][event_idx].empty())
                     {
                         res[day_idx] = patterns[day_idx][event_idx].back();
-                        tmp_idx = patterns[day_idx][event_idx].back().front();
-                        auto iter =  patterns[day_idx][event_idx].rbegin();
-                        while ((++iter) != patterns[day_idx][event_idx].rend() && iter->back() ==  res[day_idx].back())
-                        {
-                            if (iter->front() > tmp_idx)
-                            {
-                               tmp_idx = iter->front();
-                               res[day_idx] = *iter;
-                            }
-                        }
-//                        LOG_TRACE(&Logger::get("xFunnel"), "resulting=> " << day_idx << "size=>" << res[day_idx].size());
                         count--;
                     }
                 }
@@ -306,8 +303,6 @@ private:
         {
             for (UInt16 day_idx = 0; day_idx < patterns.size(); ++day_idx)
             {
-//                LOG_TRACE(&Logger::get("xFunnel"), "filling=> " << day_idx << "size=>" << res[day_idx].size());
-
                 if (!res[day_idx].empty())
                     continue;
 
@@ -315,20 +310,8 @@ private:
                 for (size_t event = events_size - 1; event > 0; --event)
                 {
                     if (!patterns[day_idx][event - 1].empty()) {
-                        // 4.3 规则
                         res[day_idx] = patterns[day_idx][event - 1].back();
-                        if (patterns[day_idx][event - 1].size() > 1) {
-                            tmp_idx = patterns[day_idx][event - 1].back().front();
-                            auto iter =  patterns[day_idx][event - 1].rbegin();
-                            while ((++iter) != patterns[day_idx][event - 1].rend() && iter->back() ==  res[day_idx].back())
-                            {
-                                if (iter->front() > tmp_idx)
-                                {
-                                   tmp_idx = iter->front();
-                                   res[day_idx] = *iter;
-                                }
-                            }
-                        }
+//                        LOG_TRACE(&Logger::get("xFunnel"), "filling=> " << day_idx << "size=>" << res[day_idx].size());
                         break;
                     }
                 }
